@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "401959942722",
+    "firebase_url": "https://unipics-caa4e.firebaseio.com",
+    "project_id": "unipics-caa4e",
+    "storage_bucket": "unipics-caa4e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:401959942722:android:f712dd4ef75d90ea",
+        "android_client_info": {
+          "package_name": "com.example.unipics"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "401959942722-se3b8crpj4djbtmbuuo2ec53bn0bcemj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.unipics",
+            "certificate_hash": "0feb67fb49d61ad00d5dd08f2de6d6d39c1356c3"
+          }
+        },
+        {
+          "client_id": "401959942722-buaif06rdha5l7rvtlosvi4ev8q29ch5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDtJyl4V6NDBnj1t7GbrHgxt_fSIJoRMpc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "401959942722-buaif06rdha5l7rvtlosvi4ev8q29ch5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
