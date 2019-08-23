@@ -13,6 +13,7 @@
         android:id="@+id/imageView3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:visibility="visible"
         tools:srcCompat="@tools:sample/avatars" />
 
     <TextView
@@ -58,13 +59,19 @@
         android:text="@string/common_signin_button_text" />
 
     <TextView
-        android:id="@+id/textView_register"
+        android:id="@+id/textView_goToSignUp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="10dp"
-        android:text="If u don't have an account yet, click here to register"
+        android:text="@string/goToRegister"
         android:textSize="24sp" />
 
+    <ProgressBar
+        android:id="@+id/progressBar_login"
+        style="?android:attr/progressBarStyle"
+        android:visibility="invisible"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
 
 </LinearLayout>

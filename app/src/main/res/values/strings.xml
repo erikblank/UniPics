@@ -14,4 +14,5 @@
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
     <string name="create_new_account">Create New Account</string>
+    <string name="goToRegister">If u don\'t have an account yet, click here to register</string>
 </resources>
