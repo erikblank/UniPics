@@ -15,4 +15,5 @@
     <string name="login_failed">"Login failed"</string>
     <string name="create_new_account">Create New Account</string>
     <string name="goToRegister">If u don\'t have an account yet, click here to register</string>
+    <string name="title_activity_folder">FolderActivity</string>
 </resources>
