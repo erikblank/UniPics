@@ -1,4 +1,4 @@
-package com.example.unipics;
+package com.example.unipics.Authentification;
 
 
 import android.content.Intent;
@@ -14,6 +14,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.unipics.MainMenu.FolderActivity;
+import com.example.unipics.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -50,7 +52,7 @@ public class LogInActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private void startMainMenu() {
-        Intent intent = new Intent(LogInActivity.this, UserData.class);
+        Intent intent = new Intent(LogInActivity.this, FolderActivity.class);
         startActivity(intent);
         //finish prevents user from going back to login screen
         finish();
