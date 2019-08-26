@@ -10,7 +10,7 @@
         android:title="item1"
         app:showAsAction="never"/>
 
-    <item android:id="@+id/item2"
+    <item android:id="@+id/item_rename"
         android:title="item2"
         app:showAsAction="never"/>
 

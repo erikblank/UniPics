@@ -5,4 +5,10 @@ public class Constants {
 
     //username key
     public static final String USERNAME_KEY = "usernameKey";
+
+    //database name for folders
+    public static final String COLLECTION_FOLDER = "folderCollection";
+
+    //extra key for folder id
+    public static final String KEY_FOLDER = "folderKey";
 }
