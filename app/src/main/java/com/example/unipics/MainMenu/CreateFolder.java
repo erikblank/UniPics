@@ -16,7 +16,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import static com.example.unipics.Constants.COLLECTION_FOLDER;
+import static com.example.unipics.Constants.DB_FOLDER;
 
 
 public class CreateFolder extends AppCompatActivity implements View.OnClickListener {
@@ -72,7 +72,7 @@ public class CreateFolder extends AppCompatActivity implements View.OnClickListe
             Folder folder = new Folder();
             folder.setFolderName(folderName);
             String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-            CollectionReference dbFolder = db.collection(COLLECTION_FOLDER + userID);
+            CollectionReference dbFolder = db.collection(userID);
             dbFolder.add(folder)
                     .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                         @Override

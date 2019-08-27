@@ -9,7 +9,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.CheckBox;
 import android.widget.GridView;
 import com.example.unipics.Authentification.LogInActivity;
 import com.example.unipics.Gallery.GalleryActivity;
@@ -17,14 +16,13 @@ import com.example.unipics.MainMenu.DatabaseFolder.Folder;
 import com.example.unipics.R;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.example.unipics.Constants.COLLECTION_FOLDER;
+import static com.example.unipics.Constants.DB_FOLDER;
 import static com.example.unipics.Constants.KEY_FOLDER;
 
 
@@ -56,15 +54,6 @@ public class FolderActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
-        gridFolder.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                CheckBox checkbox = findViewById(R.id.checkBox_folder);
-                checkbox.setVisibility(View.VISIBLE);
-                return false;
-            }
-        });
     }
 
     //get all folder stored in the database and sets ID
@@ -72,7 +61,7 @@ public class FolderActivity extends AppCompatActivity {
         folderList = new ArrayList<>();
         db = FirebaseFirestore.getInstance();
         String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        db.collection(COLLECTION_FOLDER + userID).get()
+        db.collection(DB_FOLDER + userID).get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
