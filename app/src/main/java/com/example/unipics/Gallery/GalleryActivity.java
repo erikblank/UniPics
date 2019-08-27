@@ -14,6 +14,7 @@ import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.GridView;
@@ -21,9 +22,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.unipics.R;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -40,11 +49,13 @@ import static com.example.unipics.Constants.KEY_FOLDER;
 public class GalleryActivity extends AppCompatActivity {
 
     private static final int PICK_IMAGE_REQUEST = 101;
-    private String imagePath;
+
     private StorageReference mStorageRef;
+    private DatabaseReference mDatabaseRef;
+
     private GridView gvGallery;
     private GalleryAdapter galleryAdapter;
-    private List<Uri> imageList;
+    private List<Upload> uploads;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +65,36 @@ public class GalleryActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         
         init();
+        populateGridViewWithDataBase();
         addPicture();
+
+
+    }
+
+    private void populateGridViewWithDataBase() {
+        gvGallery = findViewById(R.id.gv_gallery);
+
+        mDatabaseRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                uploads = new ArrayList<>();
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    Upload upload = postSnapshot.getValue(Upload.class);
+                    uploads.add(upload);
+                }
+
+                Toast.makeText(GalleryActivity.this, "its working lol",
+                        Toast.LENGTH_SHORT).show();
+                galleryAdapter = new GalleryAdapter(GalleryActivity.this, uploads);
+
+                gvGallery.setAdapter(galleryAdapter);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Toast.makeText(GalleryActivity.this, databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
 
 
     }
@@ -63,13 +103,9 @@ public class GalleryActivity extends AppCompatActivity {
         String folderID = getIntent().getStringExtra(KEY_FOLDER);
         String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         //path were the images are saved in firebase
-        imagePath = userID + "/" + folderID + "/";
+        String imagePath = userID + "/" + folderID + "/";
         mStorageRef = FirebaseStorage.getInstance().getReference(imagePath);
-
-        gvGallery = findViewById(R.id.gv_gallery);
-        imageList = new ArrayList<>();
-        galleryAdapter = new GalleryAdapter(this, imageList);
-
+        mDatabaseRef = FirebaseDatabase.getInstance().getReference(imagePath);
 
     }
 
@@ -126,26 +162,31 @@ public class GalleryActivity extends AppCompatActivity {
     }
 
     private void uploadToFirebase(Uri uri) {
-        StorageReference imageRef = mStorageRef.child(System.currentTimeMillis() + "." + getFileExtension(uri));
-
-        imageRef.putFile(uri)
-                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        // Get a URL to the uploaded content
+        final StorageReference imageRef = mStorageRef.child(System.currentTimeMillis() + "." + getFileExtension(uri));
+        if (uri != null) {
+            imageRef.putFile(uri).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                @Override
+                public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                    if (!task.isSuccessful()) {
+                        throw task.getException();
+                    }
+                    return imageRef.getDownloadUrl();
+                }
+            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                @Override
+                public void onComplete(@NonNull Task<Uri> task) {
+                    if (task.isSuccessful()) {
+                        Uri downloadUri = task.getResult();
+                        Upload upload = new Upload(downloadUri.toString());
+                        mDatabaseRef.push().setValue(upload);
                         Toast.makeText(GalleryActivity.this, "Image uploaded successfully",
                                 Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(GalleryActivity.this, "upload failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception exception) {
-                        // Handle unsuccessful uploads
-                        // ...
-                        Toast.makeText(GalleryActivity.this, "Image upload failed",
-                                Toast.LENGTH_LONG).show();
-                    }
-                });
+                }
+            });
+        }
 
     }
 

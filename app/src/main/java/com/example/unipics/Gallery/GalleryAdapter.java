@@ -1,7 +1,6 @@
 package com.example.unipics.Gallery;
 
 import android.content.Context;
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,14 +12,14 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-public class GalleryAdapter extends ArrayAdapter<Uri> {
-    private List<Uri> uriList;
+public class GalleryAdapter extends ArrayAdapter<Upload> {
+    private List<Upload> uploads;
     private Context mContext;
 
-    public GalleryAdapter(Context context, List<Uri> uriList) {
-        super(context, R.layout.gallery_item, uriList);
+    public GalleryAdapter(Context context, List<Upload> uploads) {
+        super(context, R.layout.gallery_item, uploads);
         this.mContext = context;
-        this.uriList = uriList;
+        this.uploads = uploads;
     }
 
     @Override
@@ -32,19 +31,23 @@ public class GalleryAdapter extends ArrayAdapter<Uri> {
             v = layoutInflater.inflate(R.layout.gallery_item, null);
         }
 
-        Uri uri = uriList.get(position);
+        Upload upload = uploads.get(position);
 
 
 
-        if (uri != null){
+        if (upload != null){
 
             ImageView imageView = v.findViewById(R.id.imageView_galleryItem);
+            String uri = upload.getImageUrl();
+
 
             Picasso.get()
                     .load(uri)
                     .fit()
+                    .placeholder(R.mipmap.ic_launcher)
                     .centerCrop()
                     .into(imageView);
+
         }
         return v;
     }

@@ -61,7 +61,7 @@ public class FolderActivity extends AppCompatActivity {
         folderList = new ArrayList<>();
         db = FirebaseFirestore.getInstance();
         String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        db.collection(DB_FOLDER + userID).get()
+        db.collection(userID).get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
