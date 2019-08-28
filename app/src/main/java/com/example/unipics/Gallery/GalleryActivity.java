@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.GridView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -56,6 +57,7 @@ public class GalleryActivity extends AppCompatActivity {
     private GridView gvGallery;
     private GalleryAdapter galleryAdapter;
     private List<Upload> uploads;
+    private ProgressBar mProgressCircle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,17 +84,15 @@ public class GalleryActivity extends AppCompatActivity {
                     Upload upload = postSnapshot.getValue(Upload.class);
                     uploads.add(upload);
                 }
-
-                Toast.makeText(GalleryActivity.this, "its working lol",
-                        Toast.LENGTH_SHORT).show();
                 galleryAdapter = new GalleryAdapter(GalleryActivity.this, uploads);
-
                 gvGallery.setAdapter(galleryAdapter);
+                mProgressCircle.setVisibility(View.INVISIBLE);
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 Toast.makeText(GalleryActivity.this, databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                mProgressCircle.setVisibility(View.INVISIBLE);
             }
         });
 
@@ -106,6 +106,7 @@ public class GalleryActivity extends AppCompatActivity {
         String imagePath = userID + "/" + folderID + "/";
         mStorageRef = FirebaseStorage.getInstance().getReference(imagePath);
         mDatabaseRef = FirebaseDatabase.getInstance().getReference(imagePath);
+        mProgressCircle = findViewById(R.id.progress_updateGallery);
 
     }
 
@@ -169,6 +170,7 @@ public class GalleryActivity extends AppCompatActivity {
                 public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
                     if (!task.isSuccessful()) {
                         throw task.getException();
+
                     }
                     return imageRef.getDownloadUrl();
                 }

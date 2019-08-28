@@ -44,7 +44,6 @@ public class GalleryAdapter extends ArrayAdapter<Upload> {
             Picasso.get()
                     .load(uri)
                     .fit()
-                    .placeholder(R.mipmap.ic_launcher)
                     .centerCrop()
                     .into(imageView);
 
