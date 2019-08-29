@@ -9,7 +9,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ImageActivity.ImageActivity"></activity>
+        <activity android:name=".NoteActivity.NoteActivity"></activity>
+        <activity android:name=".ImageActivity.ImageActivity" />
         <activity
             android:name=".Gallery.GalleryActivity"
             android:label="@string/title_activity_gallery"
