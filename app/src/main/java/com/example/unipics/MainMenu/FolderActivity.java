@@ -1,4 +1,4 @@
-package drawable;
+package com.example.unipics.MainMenu;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -142,7 +142,7 @@ public class FolderActivity extends AppCompatActivity {
         View dialogView = inflater.inflate(R.layout.dialoge_template_folder, null);
 
         final EditText editText = dialogView.findViewById(R.id.editText_folderName);
-        Button ok = dialogView.findViewById(R.id.btn_okFolder);
+        Button ok = dialogView.findViewById(R.id.btn_createFolder);
         Button cancel = dialogView.findViewById(R.id.btn_cancelFolder);
 
         ok.setOnClickListener(new View.OnClickListener() {

@@ -13,7 +13,6 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.example.unipics.MainMenu.FolderActivity;
 import com.example.unipics.R;
 import com.google.android.gms.tasks.OnCompleteListener;

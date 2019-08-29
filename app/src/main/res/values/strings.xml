@@ -23,4 +23,6 @@
     <string name="back_to_login">Already have an account? Click here to Login</string>
     <string name="create_folder">Album erstellen</string>
     <string name="name">Name</string>
+    <string name="abbrechen">Abbrechen</string>
+    <string name="erstellen">Erstellen</string>
 </resources>
