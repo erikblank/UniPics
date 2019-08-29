@@ -48,6 +48,7 @@ import java.util.Date;
 import java.util.List;
 
 import static com.example.unipics.Constants.KEY_FOLDER;
+import static com.example.unipics.Constants.KEY_IMAGE;
 
 public class GalleryActivity extends AppCompatActivity {
 
@@ -80,13 +81,16 @@ public class GalleryActivity extends AppCompatActivity {
         gvGallery.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                startImageActivity();
+                Upload upload = uploads.get(position);
+                startImageActivity(upload);
             }
         });
     }
 
-    private void startImageActivity() {
+    private void startImageActivity(Upload upload) {
         Intent intent = new Intent(GalleryActivity.this, ImageActivity.class);
+        String imageUri = upload.getImageUrl();
+        intent.putExtra(KEY_IMAGE, imageUri);
         startActivity(intent);
 
     }
