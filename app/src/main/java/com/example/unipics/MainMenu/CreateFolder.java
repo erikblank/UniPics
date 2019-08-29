@@ -16,8 +16,6 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import static com.example.unipics.Constants.DB_FOLDER;
-
 
 public class CreateFolder extends AppCompatActivity implements View.OnClickListener {
     Button btnOkay, btnCancel;

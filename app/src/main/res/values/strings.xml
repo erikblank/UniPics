@@ -17,4 +17,10 @@
     <string name="goToRegister">If u don\'t have an account yet, click here to register</string>
     <string name="title_activity_folder">FolderActivity</string>
     <string name="title_activity_gallery">GalleryActivity</string>
+    <string name="forget_password">Forgot Password?</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="sign_up">Sign up</string>
+    <string name="back_to_login">Already have an account? Click here to Login</string>
+    <string name="create_folder">Album erstellen</string>
+    <string name="name">Name</string>
 </resources>

@@ -1,14 +1,21 @@
 package com.example.unipics.MainMenu.DatabaseFolder;
 
 
-import com.google.firebase.firestore.Exclude;
+import com.google.firebase.database.Exclude;
 
 public class Folder {
 
     @Exclude
-    private String id;
+    private String folderId;
     private String folderName;
-    private boolean isSelected = false;
+
+    //empty constructor needed for database
+    public Folder (){ }
+
+    public Folder (String folderName){
+
+        this.folderName = folderName;
+    }
 
     public String getFolderName() {
         return folderName;
@@ -18,15 +25,11 @@ public class Folder {
         this.folderName = folderName;
     }
 
-    public String getId() {
-        return id;
+    public String getFolderId() {
+        return folderId;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public void setSelected(boolean selected) {
-        isSelected = selected;
+    public void setFolderId(String folderId) {
+        this.folderId = folderId;
     }
 }

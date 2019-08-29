@@ -3,4 +3,13 @@
     <color name="colorPrimary">#008577</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
+    <color name="colorBackgroundPink">#FFC7EE</color>
+    <color name="colorBackgroundCenter">#7276A9</color>
+    <color name="colorBackgroundBlue">#2F5088</color>
+
+
+    <color name="random">#ccffffff</color>
+    <color name="random_light">#66ffffff</color>
+    <color name="shadow">#7684A0</color>
+    <color name="white">#FFFFFF</color>
 </resources>

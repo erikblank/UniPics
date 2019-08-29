@@ -33,8 +33,6 @@ public class GalleryAdapter extends ArrayAdapter<Upload> {
 
         Upload upload = uploads.get(position);
 
-
-
         if (upload != null){
 
             ImageView imageView = v.findViewById(R.id.imageView_galleryItem);

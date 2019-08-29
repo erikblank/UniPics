@@ -87,7 +87,7 @@ public class GalleryActivity extends AppCompatActivity {
 
     private void startImageActivity() {
         Intent intent = new Intent(GalleryActivity.this, ImageActivity.class);
-        
+        startActivity(intent);
 
     }
 
@@ -121,7 +121,7 @@ public class GalleryActivity extends AppCompatActivity {
         String folderID = getIntent().getStringExtra(KEY_FOLDER);
         String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         //path were the images are saved in firebase
-        String imagePath = userID + "/" + folderID + "/";
+        String imagePath = userID + "/" + folderID + "/images";
         mStorageRef = FirebaseStorage.getInstance().getReference(imagePath);
         mDatabaseRef = FirebaseDatabase.getInstance().getReference(imagePath);
         mProgressCircle = findViewById(R.id.progress_updateGallery);
