@@ -17,11 +17,13 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.webkit.MimeTypeMap;
+import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.unipics.ImageActivity.ImageActivity;
 import com.example.unipics.R;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -69,7 +71,23 @@ public class GalleryActivity extends AppCompatActivity {
         init();
         populateGridViewWithDataBase();
         addPicture();
+        onImageClicked();
 
+
+    }
+
+    private void onImageClicked() {
+        gvGallery.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                startImageActivity();
+            }
+        });
+    }
+
+    private void startImageActivity() {
+        Intent intent = new Intent(GalleryActivity.this, ImageActivity.class);
+        
 
     }
 
