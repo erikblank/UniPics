@@ -3,10 +3,13 @@ package com.example.unipics.Gallery;
 import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+
+import com.example.unipics.BuildConfig;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.core.content.FileProvider;
@@ -14,6 +17,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
@@ -36,7 +41,11 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static com.example.unipics.Constants.KEY_FOLDER;
@@ -45,6 +54,10 @@ import static com.example.unipics.Constants.KEY_IMAGE;
 public class GalleryActivity extends AppCompatActivity {
 
     private static final int PICK_IMAGE_REQUEST = 101;
+    private static final int REQUEST_IMAGE_CAPTURE = 1;
+
+    String mCurrentPhotoPath;
+    Uri mCurrentPhotoUri;
 
     private StorageReference mStorageRef;
     private DatabaseReference mDatabaseRef;
@@ -149,13 +162,76 @@ public class GalleryActivity extends AppCompatActivity {
                                 choosePictureFromGallery();
                                 break;
                             case 1:
-                                //takePhotoFromCamera();
+                                takePhotoFromCamera();
                                 break;
                         }
                     }
                 });
         pictureDialog.show();
     }
+
+    private void takePhotoFromCamera(){
+        dispatchTakePictureIntent();
+        galleryAddPic();
+
+
+    }
+
+    //camera
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            // Create the File where the photo should go
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                // Error occurred while creating the File
+            }
+            if (photoFile != null) {
+                Uri photoURI = FileProvider.getUriForFile(this,
+                        BuildConfig.APPLICATION_ID + ".provider",
+                        photoFile);
+                mCurrentPhotoUri = photoURI;
+
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            }
+        }
+    }
+
+    /**
+     * Create file with current timestamp name
+     * @throws IOException
+     */
+
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+
+        // Save a file: path for use with ACTION_VIEW intents
+        mCurrentPhotoPath = image.getAbsolutePath();
+        return image;
+    }
+
+
+    private void galleryAddPic() {
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        File f = new File(mCurrentPhotoPath);
+        Uri contentUri = Uri.fromFile(f);
+        mediaScanIntent.setData(contentUri);
+        this.sendBroadcast(mediaScanIntent);
+    }
+
+
 
     private void choosePictureFromGallery() {
         Intent intent = new Intent();
@@ -172,8 +248,12 @@ public class GalleryActivity extends AppCompatActivity {
                 && data != null && data.getData() != null) {
             Uri uri = data.getData();
             uploadToFirebase(uri);
-
         }
+
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            uploadToFirebase(mCurrentPhotoUri);
+        }
+
     }
 
     private void uploadToFirebase(Uri uri) {
