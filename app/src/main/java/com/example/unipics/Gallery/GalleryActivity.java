@@ -3,13 +3,14 @@ package com.example.unipics.Gallery;
 import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 
 import com.example.unipics.BuildConfig;
+import com.example.unipics.MainMenu.Folder;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.core.content.FileProvider;
@@ -51,21 +52,24 @@ import java.util.List;
 import static com.example.unipics.Constants.KEY_FOLDER;
 import static com.example.unipics.Constants.KEY_IMAGE;
 
-public class GalleryActivity extends AppCompatActivity {
+public class GalleryActivity extends AppCompatActivity{
 
     private static final int PICK_IMAGE_REQUEST = 101;
     private static final int REQUEST_IMAGE_CAPTURE = 1;
 
-    String mCurrentPhotoPath;
-    Uri mCurrentPhotoUri;
+    private String mCurrentPhotoPath;
+    private Uri mCurrentPhotoUri;
 
+    private FirebaseStorage mStorage;
     private StorageReference mStorageRef;
     private DatabaseReference mDatabaseRef;
 
     private GridView gvGallery;
     private GalleryAdapter galleryAdapter;
     private List<Upload> uploads;
-    private ProgressBar mProgressCircle;
+    private ProgressBar mProgressBar;
+
+    private Folder currentFolder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,21 +86,16 @@ public class GalleryActivity extends AppCompatActivity {
 
     }
 
-    private void onImageClicked() {
-        gvGallery.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Upload upload = uploads.get(position);
-                startImageActivity(upload);
-            }
-        });
-    }
-
-    private void startImageActivity(Upload upload) {
-        Intent intent = new Intent(GalleryActivity.this, ImageActivity.class);
-        String imageUri = upload.getImageUrl();
-        intent.putExtra(KEY_IMAGE, imageUri);
-        startActivity(intent);
+    private void init() {
+        currentFolder = (Folder) getIntent().getSerializableExtra(KEY_FOLDER);
+        String folderID = currentFolder.getFolderId();
+        String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        //path were the images are saved in firebase
+        String imagePath = userID + "/" + folderID + "/images";
+        mStorageRef = FirebaseStorage.getInstance().getReference(imagePath);
+        mDatabaseRef = FirebaseDatabase.getInstance().getReference(imagePath);
+        mProgressBar = findViewById(R.id.progressBar_gallery);
+        mStorage = FirebaseStorage.getInstance();
 
     }
 
@@ -109,31 +108,20 @@ public class GalleryActivity extends AppCompatActivity {
                 uploads = new ArrayList<>();
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     Upload upload = postSnapshot.getValue(Upload.class);
+                    upload.setId(postSnapshot.getKey());
                     uploads.add(upload);
                 }
                 galleryAdapter = new GalleryAdapter(GalleryActivity.this, uploads);
                 gvGallery.setAdapter(galleryAdapter);
-                mProgressCircle.setVisibility(View.INVISIBLE);
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 Toast.makeText(GalleryActivity.this, databaseError.getMessage(), Toast.LENGTH_SHORT).show();
-                mProgressCircle.setVisibility(View.INVISIBLE);
+
             }
         });
 
-
-    }
-
-    private void init() {
-        String folderID = getIntent().getStringExtra(KEY_FOLDER);
-        String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        //path were the images are saved in firebase
-        String imagePath = userID + "/" + folderID + "/images";
-        mStorageRef = FirebaseStorage.getInstance().getReference(imagePath);
-        mDatabaseRef = FirebaseDatabase.getInstance().getReference(imagePath);
-        mProgressCircle = findViewById(R.id.progress_updateGallery);
 
     }
 
@@ -146,6 +134,46 @@ public class GalleryActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void onImageClicked() {
+        gvGallery.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Upload upload = uploads.get(position);
+                startImageActivity(upload);
+            }
+        });
+
+        gvGallery.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                deleteSelectedItemFromRealtimeDatabaseAndStorage(position);
+                return false;
+            }
+        });
+    }
+
+    private void deleteSelectedItemFromRealtimeDatabaseAndStorage(int position) {
+        Upload upload = uploads.get(position);
+        final String uploadID = upload.getId();
+        StorageReference currentStoreRef = mStorage.getReferenceFromUrl(upload.getImageUrl());
+        currentStoreRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                mDatabaseRef.child(uploadID).removeValue();
+                Toast.makeText(GalleryActivity.this, "Item deleted", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void startImageActivity(Upload upload) {
+        Intent intent = new Intent(GalleryActivity.this, ImageActivity.class);
+        String imageUri = upload.getImageUrl();
+        intent.putExtra(KEY_IMAGE, imageUri);
+        startActivity(intent);
+
+    }
+
 
     private void showAddPictureDialog() {
         AlertDialog.Builder pictureDialog = new AlertDialog.Builder(this);
@@ -177,7 +205,7 @@ public class GalleryActivity extends AppCompatActivity {
 
     }
 
-    //camera
+    //starts the camera, provides an Uri for uploading to firebase and saves image on device
     private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
@@ -205,7 +233,6 @@ public class GalleryActivity extends AppCompatActivity {
      * Create file with current timestamp name
      * @throws IOException
      */
-
     private File createImageFile() throws IOException {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
@@ -222,7 +249,6 @@ public class GalleryActivity extends AppCompatActivity {
         return image;
     }
 
-
     private void galleryAddPic() {
         Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
         File f = new File(mCurrentPhotoPath);
@@ -230,8 +256,6 @@ public class GalleryActivity extends AppCompatActivity {
         mediaScanIntent.setData(contentUri);
         this.sendBroadcast(mediaScanIntent);
     }
-
-
 
     private void choosePictureFromGallery() {
         Intent intent = new Intent();
@@ -257,6 +281,7 @@ public class GalleryActivity extends AppCompatActivity {
     }
 
     private void uploadToFirebase(Uri uri) {
+        mProgressBar.setVisibility(View.VISIBLE);
         final StorageReference imageRef = mStorageRef.child(System.currentTimeMillis() + "." + getFileExtension(uri));
         if (uri != null) {
             imageRef.putFile(uri).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
@@ -264,7 +289,6 @@ public class GalleryActivity extends AppCompatActivity {
                 public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
                     if (!task.isSuccessful()) {
                         throw task.getException();
-
                     }
                     return imageRef.getDownloadUrl();
                 }
@@ -272,6 +296,7 @@ public class GalleryActivity extends AppCompatActivity {
                 @Override
                 public void onComplete(@NonNull Task<Uri> task) {
                     if (task.isSuccessful()) {
+                        mProgressBar.setVisibility(View.GONE);
                         Uri downloadUri = task.getResult();
                         Upload upload = new Upload(downloadUri.toString());
                         mDatabaseRef.push().setValue(upload);
@@ -283,7 +308,6 @@ public class GalleryActivity extends AppCompatActivity {
                 }
             });
         }
-
     }
 
     //returns the extension of the image (like jpg, png)
@@ -292,6 +316,5 @@ public class GalleryActivity extends AppCompatActivity {
         MimeTypeMap mime = MimeTypeMap.getSingleton();
         return mime.getExtensionFromMimeType(cR.getType(uri));
     }
-
 
 }

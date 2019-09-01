@@ -2,9 +2,12 @@ package com.example.unipics.MainMenu;
 
 import android.content.Intent;
 import android.os.Bundle;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -18,7 +21,6 @@ import android.widget.Toast;
 
 import com.example.unipics.Authentification.LogInActivity;
 import com.example.unipics.Gallery.GalleryActivity;
-import com.example.unipics.MainMenu.DatabaseFolder.Folder;
 import com.example.unipics.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -26,6 +28,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,11 +38,11 @@ import static com.example.unipics.Constants.KEY_FOLDER;
 
 public class FolderActivity extends AppCompatActivity {
 
-    FirebaseDatabase database;
-    DatabaseReference myRef;
-    GridView gridFolder;
-    List<Folder> folders;
-    FolderAdapter folderAdapter;
+    private DatabaseReference myRef;
+    private GridView gridFolder;
+    private List<Folder> folders;
+    private FolderAdapter folderAdapter;
+
 
     String userID;
 
@@ -54,36 +57,54 @@ public class FolderActivity extends AppCompatActivity {
         onFolderClicked();
     }
 
+    private void init() {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        myRef = database.getReference(userID);
+
+    }
     //simple click on Folder will open the GalleryActivity
     private void onFolderClicked() {
         gridFolder.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(FolderActivity.this, GalleryActivity.class);
-                intent.putExtra(KEY_FOLDER, folders.get(position).getFolderId());
-                startActivity(intent);
-            }
-        });
-
-        gridFolder.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 Folder folder = folders.get(position);
-                myRef.child(folder.getFolderId()).removeValue();
-                return false;
+                Intent intent = new Intent(FolderActivity.this, GalleryActivity.class);
+                intent.putExtra(KEY_FOLDER, folder);
+                startActivity(intent);
             }
         });
     }
 
-    private void init() {
-        database = FirebaseDatabase.getInstance();
-        userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        myRef = database.getReference(userID);
+    private void addDeleteDialog(final String folderID) {
+        final AlertDialog dialogBuilder = new AlertDialog.Builder(this).create();
+        LayoutInflater inflater = this.getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_delete_folder, null);
+        Button ok = dialogView.findViewById(R.id.btn_dialogDelete_ok);
+        Button cancel = dialogView.findViewById(R.id.btn_dialogDelete_cancel);
+
+        ok.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                myRef.child(folderID).removeValue();
+                dialogBuilder.dismiss();
+            }
+        });
+
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialogBuilder.dismiss();
+            }
+        });
+
+        dialogBuilder.setView(dialogView);
+        dialogBuilder.show();
+
     }
 
     private void populateGridViewWithDataBase() {
         gridFolder = findViewById(R.id.gv_folders);
-
         myRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -93,10 +114,10 @@ public class FolderActivity extends AppCompatActivity {
                     String folderID = postSnapshot.getKey();
                     folder.setFolderId(folderID);
                     folders.add(folder);
-
                 }
                 folderAdapter = new FolderAdapter(FolderActivity.this, folders);
                 gridFolder.setAdapter(folderAdapter);
+                registerForContextMenu(gridFolder);
 
             }
 
@@ -139,8 +160,7 @@ public class FolderActivity extends AppCompatActivity {
     private void addFolderDialog() {
         final AlertDialog dialogBuilder = new AlertDialog.Builder(this).create();
         LayoutInflater inflater = this.getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.dialoge_template_folder, null);
-
+        View dialogView = inflater.inflate(R.layout.dialog_add_folder, null);
         final EditText editText = dialogView.findViewById(R.id.editText_folderName);
         Button ok = dialogView.findViewById(R.id.btn_createFolder);
         Button cancel = dialogView.findViewById(R.id.btn_cancelFolder);
@@ -175,5 +195,29 @@ public class FolderActivity extends AppCompatActivity {
 
         dialogBuilder.setView(dialogView);
         dialogBuilder.show();
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_folder, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        switch(item.getItemId()){
+            case R.id.menu_folder_rename:
+                //renameFolder();
+                return true;
+            case R.id.menu_folder_delete:
+                addDeleteDialog(folders.get(info.position).getFolderId());
+
+                return true;
+            default:
+                return super.onContextItemSelected(item);
+        }
+
     }
 }

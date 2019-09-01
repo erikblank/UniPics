@@ -7,7 +7,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import com.example.unipics.MainMenu.DatabaseFolder.Folder;
 import com.example.unipics.R;
 
 import java.util.List;

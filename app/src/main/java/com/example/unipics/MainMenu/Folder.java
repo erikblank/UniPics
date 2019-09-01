@@ -1,19 +1,26 @@
-package com.example.unipics.MainMenu.DatabaseFolder;
+package com.example.unipics.MainMenu;
 
 
+import android.net.Uri;
+
+import com.example.unipics.Gallery.Upload;
 import com.google.firebase.database.Exclude;
 
-public class Folder {
+import java.io.Serializable;
+import java.util.ArrayList;
+
+public class Folder implements Serializable{
 
     @Exclude
     private String folderId;
     private String folderName;
 
     //empty constructor needed for database
-    public Folder (){ }
+    public Folder (){
+
+    }
 
     public Folder (String folderName){
-
         this.folderName = folderName;
     }
 
@@ -32,4 +39,6 @@ public class Folder {
     public void setFolderId(String folderId) {
         this.folderId = folderId;
     }
+
+
 }

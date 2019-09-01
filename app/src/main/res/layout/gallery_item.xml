@@ -19,7 +19,7 @@
         android:layout_height="205dp"
         android:paddingLeft="5dp"
         android:paddingTop="5dp"
-        android:paddingRight="5dp"
+        android:paddingRight="0dp"
         android:paddingBottom="0dp"
         app:layout_constraintEnd_toStartOf="@+id/guideline"
         app:layout_constraintHorizontal_bias="1.0"

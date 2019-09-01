@@ -9,15 +9,22 @@
     tools:context=".Gallery.GalleryActivity"
     tools:showIn="@layout/activity_gallery">
 
-    <ProgressBar
-        android:id="@+id/progress_updateGallery"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true" />
 
     <GridView
         android:id="@+id/gv_gallery"
         android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:numColumns="auto_fit"
+        android:layout_above="@id/progressBar_gallery" />
+
+    <ProgressBar
+        android:id="@+id/progressBar_gallery"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:indeterminateOnly="true"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:numColumns="auto_fit" />
+        android:layout_alignParentBottom="true"
+        android:visibility="invisible"
+        android:layout_marginBottom="0dp" />
+
 </RelativeLayout>
