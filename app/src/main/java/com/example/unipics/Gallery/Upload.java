@@ -1,8 +1,6 @@
 package com.example.unipics.Gallery;
 
 import com.google.firebase.database.Exclude;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 public class Upload{
     private String id;

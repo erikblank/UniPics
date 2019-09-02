@@ -1,13 +1,9 @@
 package com.example.unipics.MainMenu;
 
 
-import android.net.Uri;
 
-import com.example.unipics.Gallery.Upload;
 import com.google.firebase.database.Exclude;
-
 import java.io.Serializable;
-import java.util.ArrayList;
 
 public class Folder implements Serializable{
 

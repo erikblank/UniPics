@@ -3,7 +3,6 @@ package com.example.unipics.Gallery;
 import android.Manifest;
 import android.content.ClipData;
 import android.content.ContentResolver;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -26,12 +25,14 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -60,6 +61,7 @@ import java.util.List;
 
 import static com.example.unipics.Constants.KEY_FOLDER;
 import static com.example.unipics.Constants.KEY_IMAGE;
+import static com.example.unipics.Constants.KEY_PATH_IMAGE;
 
 public class GalleryActivity extends AppCompatActivity{
 
@@ -68,6 +70,7 @@ public class GalleryActivity extends AppCompatActivity{
 
     private String mCurrentPhotoPath;
     private Uri mCurrentPhotoUri;
+    private String imagePath;
 
     private FirebaseStorage mStorage;
     private StorageReference mStorageRef;
@@ -77,8 +80,6 @@ public class GalleryActivity extends AppCompatActivity{
     private GalleryAdapter galleryAdapter;
     private List<Upload> uploads;
     private ProgressBar mProgressBar;
-
-    private Folder currentFolder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,7 +97,7 @@ public class GalleryActivity extends AppCompatActivity{
     }
 
     private void init() {
-        currentFolder = (Folder) getIntent().getSerializableExtra(KEY_FOLDER);
+        Folder currentFolder = (Folder) getIntent().getSerializableExtra(KEY_FOLDER);
         String folderID = currentFolder.getFolderId();
         String folderName = currentFolder.getFolderName();
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -104,7 +105,7 @@ public class GalleryActivity extends AppCompatActivity{
         setSupportActionBar(toolbar);
         String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         //path were the images are saved in firebase
-        String imagePath = userID + "/" + folderID + "/images";
+        imagePath = userID + "/" + folderID + "/images";
         mStorageRef = FirebaseStorage.getInstance().getReference(imagePath);
         mDatabaseRef = FirebaseDatabase.getInstance().getReference(imagePath);
         mProgressBar = findViewById(R.id.progressBar_gallery);
@@ -126,6 +127,7 @@ public class GalleryActivity extends AppCompatActivity{
                 }
                 galleryAdapter = new GalleryAdapter(GalleryActivity.this, uploads);
                 gvGallery.setAdapter(galleryAdapter);
+                registerForContextMenu(gvGallery);
             }
 
             @Override
@@ -156,14 +158,6 @@ public class GalleryActivity extends AppCompatActivity{
                 startImageActivity(upload);
             }
         });
-
-        gvGallery.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                deleteSelectedItemFromRealtimeDatabaseAndStorage(position);
-                return false;
-            }
-        });
     }
 
     private void deleteSelectedItemFromRealtimeDatabaseAndStorage(int position) {
@@ -182,6 +176,7 @@ public class GalleryActivity extends AppCompatActivity{
     private void startImageActivity(Upload upload) {
         Intent intent = new Intent(GalleryActivity.this, ImageActivity.class);
         String imageUri = upload.getImageUrl();
+        intent.putExtra(KEY_PATH_IMAGE, imagePath + "/" + upload.getId());
         intent.putExtra(KEY_IMAGE, imageUri);
         startActivity(intent);
 
@@ -227,6 +222,7 @@ public class GalleryActivity extends AppCompatActivity{
             @Override
             public void onClick(View v) {
                 takePhotoFromCamera();
+                dialogBuilder.dismiss();
             }
         });
 
@@ -239,6 +235,7 @@ public class GalleryActivity extends AppCompatActivity{
                     return;
                 }
                 choosePictureFromGallery();
+                dialogBuilder.dismiss();
             }
         });
 
@@ -394,6 +391,24 @@ public class GalleryActivity extends AppCompatActivity{
         ContentResolver cR = getContentResolver();
         MimeTypeMap mime = MimeTypeMap.getSingleton();
         return mime.getExtensionFromMimeType(cR.getType(uri));
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_gallery, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        if (item.getItemId() == R.id.menu_gallery_delete) {
+            deleteSelectedItemFromRealtimeDatabaseAndStorage(info.position);
+            return true;
+        }
+        return super.onContextItemSelected(item);
+
     }
 
 }
