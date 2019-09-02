@@ -3,6 +3,7 @@ package com.example.unipics.MainMenu;
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -34,6 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.example.unipics.Constants.KEY_FOLDER;
+import static com.example.unipics.Constants.TITLE_FOLDER_ACTIVITY;
 
 
 public class FolderActivity extends AppCompatActivity {
@@ -51,6 +53,7 @@ public class FolderActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_folder);
         Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle(TITLE_FOLDER_ACTIVITY);
         setSupportActionBar(toolbar);
         init();
         populateGridViewWithDataBase();
@@ -209,15 +212,58 @@ public class FolderActivity extends AppCompatActivity {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         switch(item.getItemId()){
             case R.id.menu_folder_rename:
-                //renameFolder();
+                addRenameDialog(folders.get(info.position).getFolderId());
                 return true;
             case R.id.menu_folder_delete:
                 addDeleteDialog(folders.get(info.position).getFolderId());
-
                 return true;
             default:
                 return super.onContextItemSelected(item);
         }
+
+    }
+
+    private void addRenameDialog(final String folderID) {
+        final AlertDialog dialogBuilder = new AlertDialog.Builder(this).create();
+        LayoutInflater inflater = this.getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_rename_folder, null);
+        Button ok = dialogView.findViewById(R.id.btn_rename_ok);
+        Button cancel = dialogView.findViewById(R.id.btn_rename_cancel);
+        final EditText newName = dialogView.findViewById(R.id.editText_rename);
+
+        ok.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        String name = newName.getText().toString().trim();
+                        Folder folder = new Folder(name);
+                        if (!name.isEmpty()){
+                            dataSnapshot.getRef().child(folderID).child("folderName").setValue(name);
+                        }
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+                dialogBuilder.dismiss();
+            }
+        });
+
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialogBuilder.dismiss();
+            }
+        });
+
+        dialogBuilder.setView(dialogView);
+        dialogBuilder.show();
+
 
     }
 }

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    tools:context=".Gallery.GalleryActivity"
+    android:background="@color/colorBackgroundBlue">
+
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="25dp"
+            android:layout_marginBottom="25dp">
+
+
+        <Button
+            android:id="@+id/btn_selectFromCamera"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/colorBackgroundBlue"
+            android:drawableStart="@drawable/ic_action_camera"
+            android:drawableLeft="@drawable/ic_action_camera"
+            android:padding="10dp"
+
+            android:text="@string/select_from_camera"
+            android:textAlignment="center"
+            android:textColor="@color/white" />
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_weight="1"
+            android:background="@color/random_light" />
+
+        <Button
+            android:id="@+id/btn_selectFromGallery"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/colorBackgroundBlue"
+            android:drawableStart="@drawable/ic_action_gallery"
+            android:drawableLeft="@drawable/ic_action_gallery"
+            android:padding="10dp"
+            android:shadowColor="#00FFFFFF"
+            android:text="@string/select_from_gallery"
+            android:textAlignment="center"
+            android:textColor="@color/white" />
+
+        <Button
+            android:id="@+id/btn_selectFromCancel"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:layout_margin="10dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_et"
+            android:text="@string/abbrechen" />
+
+    </LinearLayout>
+
+
+
+</RelativeLayout>

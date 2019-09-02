@@ -1,9 +1,13 @@
 package com.example.unipics.Gallery;
 
+import android.Manifest;
+import android.content.ClipData;
 import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -13,6 +17,8 @@ import com.example.unipics.MainMenu.Folder;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import androidx.annotation.RequiresApi;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,9 +26,12 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -75,10 +84,10 @@ public class GalleryActivity extends AppCompatActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gallery);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
         
         init();
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         populateGridViewWithDataBase();
         addPicture();
         onImageClicked();
@@ -89,6 +98,10 @@ public class GalleryActivity extends AppCompatActivity{
     private void init() {
         currentFolder = (Folder) getIntent().getSerializableExtra(KEY_FOLDER);
         String folderID = currentFolder.getFolderId();
+        String folderName = currentFolder.getFolderName();
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle(folderName);
+        setSupportActionBar(toolbar);
         String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         //path were the images are saved in firebase
         String imagePath = userID + "/" + folderID + "/images";
@@ -176,17 +189,23 @@ public class GalleryActivity extends AppCompatActivity{
 
 
     private void showAddPictureDialog() {
-        AlertDialog.Builder pictureDialog = new AlertDialog.Builder(this);
+        /*AlertDialog.Builder pictureDialog = new AlertDialog.Builder(this);
         pictureDialog.setTitle("Select Action");
         String[] pictureDialogItems = {
                 "Select photo from gallery",
                 "Capture photo from camera" };
         pictureDialog.setItems(pictureDialogItems,
                 new DialogInterface.OnClickListener() {
+                    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         switch (which) {
                             case 0:
+                                //ask for permission if not granted
+                                if (ActivityCompat.checkSelfPermission(GalleryActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)!= PackageManager.PERMISSION_GRANTED){
+                                    ActivityCompat.requestPermissions(GalleryActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 100);
+                                    return;
+                                }
                                 choosePictureFromGallery();
                                 break;
                             case 1:
@@ -195,7 +214,45 @@ public class GalleryActivity extends AppCompatActivity{
                         }
                     }
                 });
-        pictureDialog.show();
+        pictureDialog.show();*/
+
+        final AlertDialog dialogBuilder = new AlertDialog.Builder(this).create();
+        LayoutInflater inflater = this.getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_gallery_select_from, null);
+        Button camera = dialogView.findViewById(R.id.btn_selectFromCamera);
+        Button gallery = dialogView.findViewById(R.id.btn_selectFromGallery);
+        Button cancel = dialogView.findViewById(R.id.btn_selectFromCancel);
+
+        camera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                takePhotoFromCamera();
+            }
+        });
+
+        gallery.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
+            @Override
+            public void onClick(View v) {
+                if (ActivityCompat.checkSelfPermission(GalleryActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)!= PackageManager.PERMISSION_GRANTED){
+                    ActivityCompat.requestPermissions(GalleryActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 100);
+                    return;
+                }
+                choosePictureFromGallery();
+            }
+        });
+
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialogBuilder.dismiss();
+            }
+        });
+
+        dialogBuilder.setView(dialogView);
+        dialogBuilder.show();
+
+
     }
 
     private void takePhotoFromCamera(){
@@ -257,26 +314,48 @@ public class GalleryActivity extends AppCompatActivity{
         this.sendBroadcast(mediaScanIntent);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     private void choosePictureFromGallery() {
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        try {
+            // When an Image is picked
+            if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK
+                    && null != data) {
+                // if just one image is picked
+                if(data.getData()!=null){
+                    Uri uri = data.getData();
+                    uploadToFirebase(uri);
+                } else {
+                    //if multiple images are picked
+                    if (data.getClipData() != null) {
+                        ClipData mClipData = data.getClipData();
+                        for (int i = 0; i < mClipData.getItemCount(); i++) {
+                            ClipData.Item item = mClipData.getItemAt(i);
+                            Uri uri = item.getUri();
+                            uploadToFirebase(uri);
+                        }
+                    }
+                }
+            }
+            //if image is from camera
+            if(requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+                uploadToFirebase(mCurrentPhotoUri);
+            }
+        } catch (Exception e) {
+            Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG)
+                    .show();
+        }
+
         super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK
-                && data != null && data.getData() != null) {
-            Uri uri = data.getData();
-            uploadToFirebase(uri);
-        }
-
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            uploadToFirebase(mCurrentPhotoUri);
-        }
 
     }
 
@@ -296,12 +375,12 @@ public class GalleryActivity extends AppCompatActivity{
                 @Override
                 public void onComplete(@NonNull Task<Uri> task) {
                     if (task.isSuccessful()) {
-                        mProgressBar.setVisibility(View.GONE);
                         Uri downloadUri = task.getResult();
                         Upload upload = new Upload(downloadUri.toString());
                         mDatabaseRef.push().setValue(upload);
                         Toast.makeText(GalleryActivity.this, "Image uploaded successfully",
                                 Toast.LENGTH_LONG).show();
+                        mProgressBar.setVisibility(View.GONE);
                     } else {
                         Toast.makeText(GalleryActivity.this, "upload failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     }
