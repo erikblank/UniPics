@@ -1,6 +1,7 @@
 package com.example.unipics.ImageActivity;
 
 import android.annotation.SuppressLint;
+import android.media.Image;
 import android.net.Uri;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -9,6 +10,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
+
 import com.example.unipics.R;
 import com.github.chrisbanes.photoview.PhotoView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
@@ -46,8 +49,15 @@ public class ImageActivity extends AppCompatActivity {
         mDatabaseRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                editText.setText(dataSnapshot.getValue().toString());
-                //TODO: datasnapshot just gives me the id of the db structure and i cant get value out of it, so i need an java note class to get it like in folderactivity
+                if (dataSnapshot.exists()){
+                    Note note = dataSnapshot.getValue(Note.class);
+                    //note.setNoteId(dataSnapshot.getKey());
+                    String noteText = note.getNoteText();
+                    editText.setText(noteText);
+                    Toast.makeText(ImageActivity.this, "database is listening: "+ noteText, Toast.LENGTH_SHORT).show();
+
+                }
+
             }
 
             @Override
@@ -61,8 +71,9 @@ public class ImageActivity extends AppCompatActivity {
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String note = editText.getText().toString().trim();
-                if (!note.isEmpty()){
+                String noteText = editText.getText().toString().trim();
+                if (!noteText.isEmpty()){
+                    Note note = new Note(noteText);
                     mDatabaseRef.push().setValue(note);
                 }
             }
