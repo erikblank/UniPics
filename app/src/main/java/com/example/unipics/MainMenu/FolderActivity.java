@@ -120,6 +120,7 @@ public class FolderActivity extends AppCompatActivity {
                 }
                 folderAdapter = new FolderAdapter(FolderActivity.this, folders);
                 gridFolder.setAdapter(folderAdapter);
+                gridFolder.setEmptyView(findViewById(R.id.emptyElement_folder));
                 registerForContextMenu(gridFolder);
 
             }

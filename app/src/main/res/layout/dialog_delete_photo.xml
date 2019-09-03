@@ -29,7 +29,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="20dp"
                 android:layout_marginRight="20dp"
-                android:text="@string/delete_folder"
+                android:text="@string/delete_photo"
                 android:textAlignment="center"
                 android:textColor="@color/white"
                 android:textSize="30sp"

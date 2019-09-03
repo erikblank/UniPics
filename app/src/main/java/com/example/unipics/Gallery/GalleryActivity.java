@@ -33,6 +33,7 @@ import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -127,6 +128,7 @@ public class GalleryActivity extends AppCompatActivity{
                 }
                 galleryAdapter = new GalleryAdapter(GalleryActivity.this, uploads);
                 gvGallery.setAdapter(galleryAdapter);
+                gvGallery.setEmptyView(findViewById(R.id.emptyElement_gallery));
                 registerForContextMenu(gvGallery);
             }
 
@@ -160,17 +162,39 @@ public class GalleryActivity extends AppCompatActivity{
         });
     }
 
-    private void deleteSelectedItemFromRealtimeDatabaseAndStorage(int position) {
-        Upload upload = uploads.get(position);
-        final String uploadID = upload.getId();
-        StorageReference currentStoreRef = mStorage.getReferenceFromUrl(upload.getImageUrl());
-        currentStoreRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+    private void deleteSelectedItemFromRealtimeDatabaseAndStorage(final int position) {
+        final AlertDialog dialogBuilder = new AlertDialog.Builder(this).create();
+        LayoutInflater inflater = this.getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_delete_photo, null);
+        Button ok = dialogView.findViewById(R.id.btn_dialogDelete_ok);
+        Button cancel = dialogView.findViewById(R.id.btn_dialogDelete_cancel);
+
+        ok.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onSuccess(Void aVoid) {
-                mDatabaseRef.child(uploadID).removeValue();
-                Toast.makeText(GalleryActivity.this, "Item deleted", Toast.LENGTH_SHORT).show();
+            public void onClick(View v) {
+                Upload upload = uploads.get(position);
+                final String uploadID = upload.getId();
+                StorageReference currentStoreRef = mStorage.getReferenceFromUrl(upload.getImageUrl());
+                currentStoreRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        mDatabaseRef.child(uploadID).removeValue();
+                        Toast.makeText(GalleryActivity.this, "Foto gelöscht", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                dialogBuilder.dismiss();
             }
         });
+
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialogBuilder.dismiss();
+            }
+        });
+
+        dialogBuilder.setView(dialogView);
+        dialogBuilder.show();
     }
 
     private void startImageActivity(Upload upload) {
