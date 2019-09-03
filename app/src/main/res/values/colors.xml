@@ -6,6 +6,9 @@
     <color name="colorBackgroundPink">#FFC7EE</color>
     <color name="colorBackgroundCenter">#7276A9</color>
     <color name="colorBackgroundBlue">#2F5088</color>
+    <color name="colorBackgroundPinkLight">#80FFC7EE</color>
+    <color name="colorBackgroundCenterLight">#807276A9</color>
+    <color name="colorBackgroundBlueLight">#802F5088</color>
 
 
     <color name="random">#ccffffff</color>
