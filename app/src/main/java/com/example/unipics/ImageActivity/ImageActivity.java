@@ -54,7 +54,6 @@ public class ImageActivity extends AppCompatActivity {
                     //note.setNoteId(dataSnapshot.getKey());
                     String noteText = note.getNoteText();
                     editText.setText(noteText);
-                    Toast.makeText(ImageActivity.this, "database is listening: "+ noteText, Toast.LENGTH_SHORT).show();
 
                 }
 
@@ -74,7 +73,7 @@ public class ImageActivity extends AppCompatActivity {
                 String noteText = editText.getText().toString().trim();
                 if (!noteText.isEmpty()){
                     Note note = new Note(noteText);
-                    mDatabaseRef.push().setValue(note);
+                    mDatabaseRef.setValue(note);
                 }
             }
         });
@@ -121,7 +120,7 @@ public class ImageActivity extends AppCompatActivity {
         Picasso.get().load(Uri.parse(uri)).into(photoView);
         editText = findViewById(R.id.editText_note);
         btnSave = findViewById(R.id.btn_saveNote);
-        mDatabaseRef = FirebaseDatabase.getInstance().getReference(folderId).child("/note");
+        mDatabaseRef = FirebaseDatabase.getInstance().getReference(folderId + "/note");
     }
 
 }
