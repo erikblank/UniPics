@@ -54,6 +54,7 @@ public class ImageActivity extends AppCompatActivity {
                     //note.setNoteId(dataSnapshot.getKey());
                     String noteText = note.getNoteText();
                     editText.setText(noteText);
+                    editText.setSelection(editText.getText().length());
 
                 }
 

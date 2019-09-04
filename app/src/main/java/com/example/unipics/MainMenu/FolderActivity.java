@@ -173,9 +173,13 @@ public class FolderActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (editText.length() == 0) {
-                    editText.setError("Enter a name");
+                    editText.setError("Gebe einen Namen ein");
                     return;
-                } else {
+                }
+                if (editText.length() > 15) {
+                    editText.setError("Name muss kürzer als 15 Zeichen sein");
+                    return;
+                }else{
                     String folderName = editText.getText().toString().trim();
                     for (Folder folder: folders){
                         if (folder.getFolderName().equals(folderName)){

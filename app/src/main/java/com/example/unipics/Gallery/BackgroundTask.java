@@ -64,7 +64,7 @@ public class BackgroundTask extends AsyncTask<Uri, Integer, String> {
 
     @Override
     protected void onProgressUpdate(Integer... values) {
-        uploadListener.onProgress(values.length);
+        uploadListener.onProgress();
 
     }
 

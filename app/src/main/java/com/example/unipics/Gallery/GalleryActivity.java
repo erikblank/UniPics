@@ -105,7 +105,7 @@ public class GalleryActivity extends AppCompatActivity implements UploadListener
         toolbar.setTitle(folderName);
         setSupportActionBar(toolbar);
         String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        //path were the images are saved in firebase
+        //path were the images are saved in firebase database
         imagePath = userID + "/" + folderID + "/images";
         mStorageRef = FirebaseStorage.getInstance().getReference(userID);
         mDatabaseRef = FirebaseDatabase.getInstance().getReference(imagePath);
@@ -120,7 +120,6 @@ public class GalleryActivity extends AppCompatActivity implements UploadListener
         mDatabaseRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                mProgressBar.setVisibility(View.VISIBLE);
                 uploads = new ArrayList<>();
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     Upload upload = postSnapshot.getValue(Upload.class);
@@ -138,7 +137,6 @@ public class GalleryActivity extends AppCompatActivity implements UploadListener
             public void onCancelled(DatabaseError databaseError) {
                 Toast.makeText(GalleryActivity.this, databaseError.getMessage(), Toast.LENGTH_SHORT).show();
                 mProgressBar.setVisibility(View.INVISIBLE);
-
             }
         });
 
@@ -360,6 +358,7 @@ public class GalleryActivity extends AppCompatActivity implements UploadListener
     }
 
     private void uploadToFirebase(Uri uri) {
+        mProgressBar.setVisibility(View.VISIBLE);
         final StorageReference imageRef = mStorageRef.child(System.currentTimeMillis() + "." + getFileExtension(uri));
         if (uri != null) {
             imageRef.putFile(uri).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
@@ -414,17 +413,7 @@ public class GalleryActivity extends AppCompatActivity implements UploadListener
     }
 
     @Override
-    public void onProgress(int indexOfImagesUploaded) {
+    public void onProgress() {
         mProgressBar.setVisibility(View.VISIBLE);
-        Toast.makeText(this, ""+indexOfImagesUploaded, Toast.LENGTH_SHORT).show();
-
-
-    }
-
-    @Override
-    public void onResult(String result) {
-        //mProgressBar.setVisibility(View.GONE);
-        Toast.makeText(this, result, Toast.LENGTH_SHORT).show();
-
     }
 }

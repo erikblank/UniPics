@@ -9,7 +9,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".NoteActivity.NoteActivity"></activity>
         <activity android:name=".ImageActivity.ImageActivity" />
         <activity
             android:name=".Gallery.GalleryActivity"
@@ -22,7 +21,6 @@
         <activity
             android:name=".Authentification.RegisterActivity"
             android:screenOrientation="portrait" />
-        <activity android:name=".Authentification.UserData" />
         <activity
             android:name=".Authentification.LogInActivity"
             android:screenOrientation="portrait">
