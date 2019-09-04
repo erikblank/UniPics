@@ -133,7 +133,6 @@ public class LogInActivity extends AppCompatActivity implements View.OnClickList
 
             case R.id.textView_goToSignUp:
                 startActivity(new Intent(LogInActivity.this, RegisterActivity.class));
-                finish();
                 break;
         }
     }

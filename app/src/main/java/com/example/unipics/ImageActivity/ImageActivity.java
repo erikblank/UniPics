@@ -72,10 +72,10 @@ public class ImageActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String noteText = editText.getText().toString().trim();
-                if (!noteText.isEmpty()){
-                    Note note = new Note(noteText);
-                    mDatabaseRef.setValue(note);
-                }
+                Note note = new Note(noteText);
+                mDatabaseRef.setValue(note);
+                Toast.makeText(ImageActivity.this, "Notiz gespeichert", Toast.LENGTH_SHORT).show();
+
             }
         });
     }
