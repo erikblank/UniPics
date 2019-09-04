@@ -12,16 +12,17 @@
 
     <ImageView
         android:id="@+id/imageView_logo"
-        android:layout_width="193dp"
-        android:layout_height="340dp"
-        android:layout_marginTop="15dp"
+        android:layout_width="174dp"
+        android:layout_height="318dp"
+        android:layout_marginTop="25dp"
         app:layout_constraintEnd_toStartOf="@+id/guideline_right"
         app:layout_constraintStart_toStartOf="@+id/guideline_left"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/logoandtitle" />
 
-    <EditText
-        android:id="@+id/editText_email"
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputLayout_editText_email"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:hint="@string/editTextEnterEmail"
@@ -31,16 +32,23 @@
         android:layout_marginTop="0dp"
         app:layout_constraintTop_toBottomOf="@id/imageView_logo"
         app:layout_constraintEnd_toStartOf="@+id/guideline_right"
-        app:layout_constraintStart_toStartOf="@+id/guideline_left"
-        android:drawableLeft="@drawable/ic_action_email"
-        android:drawableStart="@drawable/ic_action_email"
-        android:drawablePadding="10dp"
-        android:background="@drawable/bg_et"
-        android:padding="16dp"
-        />
+        app:layout_constraintStart_toStartOf="@+id/guideline_left">
 
-    <EditText
-        android:id="@+id/editText_password"
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editText_email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_et"
+            android:drawableStart="@drawable/ic_action_email"
+            android:drawableLeft="@drawable/ic_action_email"
+            android:drawablePadding="10dp"
+            android:padding="16dp"
+            android:textSize="16sp"
+            app:backgroundTint="@color/random"></com.google.android.material.textfield.TextInputEditText>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputLayout_editText_password"
         android:ems="10"
         android:hint="@string/editTextPassword"
         android:textColorHint="@color/white"
@@ -48,19 +56,28 @@
         android:inputType="textPassword"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/editText_email"
+        android:layout_marginTop="5dp"
+        app:layout_constraintTop_toBottomOf="@id/textInputLayout_editText_email"
         app:layout_constraintEnd_toStartOf="@+id/guideline_right"
         app:layout_constraintStart_toStartOf="@+id/guideline_left"
-        android:drawableLeft="@drawable/ic_action_password"
-        android:drawableStart="@drawable/ic_action_password"
-        android:drawablePadding="10dp"
-        android:background="@drawable/bg_et"
-        android:padding="16dp"
-        />
+        app:passwordToggleEnabled="true">
 
-    <EditText
-        android:id="@+id/editText_passwordAgain"
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editText_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_et"
+            android:drawableStart="@drawable/ic_action_password"
+            android:drawableLeft="@drawable/ic_action_password"
+            android:drawablePadding="10dp"
+            android:inputType="textPassword"
+            android:padding="16dp"
+            android:textSize="16sp"
+            app:backgroundTint="@color/random"></com.google.android.material.textfield.TextInputEditText>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputLayout_editText_passwordAgain"
         android:ems="10"
         android:hint="@string/confirm_password"
         android:textColorHint="@color/white"
@@ -68,16 +85,27 @@
         android:inputType="textPassword"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/editText_password"
+        android:layout_marginTop="5dp"
+        app:layout_constraintTop_toBottomOf="@id/textInputLayout_editText_password"
         app:layout_constraintEnd_toStartOf="@+id/guideline_right"
         app:layout_constraintStart_toStartOf="@+id/guideline_left"
-        android:drawableLeft="@drawable/ic_action_password"
-        android:drawableStart="@drawable/ic_action_password"
-        android:drawablePadding="10dp"
-        android:background="@drawable/bg_et"
-        android:padding="16dp"
-        />
+        app:passwordToggleEnabled="true">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editText_passwordAgain"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_et"
+            android:drawableStart="@drawable/ic_action_password"
+            android:drawableLeft="@drawable/ic_action_password"
+            android:drawablePadding="10dp"
+            android:inputType="textPassword"
+            android:padding="16dp"
+            android:textSize="16sp"
+            app:backgroundTint="@color/random">
+
+        </com.google.android.material.textfield.TextInputEditText>
+    </com.google.android.material.textfield.TextInputLayout>
 
     <Button
         android:id="@+id/btn_register"
@@ -91,7 +119,7 @@
         android:textSize="20sp"
         app:layout_constraintEnd_toStartOf="@+id/guideline_right"
         app:layout_constraintStart_toStartOf="@+id/guideline_left"
-        app:layout_constraintTop_toBottomOf="@id/editText_passwordAgain"
+        app:layout_constraintTop_toBottomOf="@id/textInputLayout_editText_passwordAgain"
         tools:ignore="UnknownId" />
 
     <TextView

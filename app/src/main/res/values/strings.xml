@@ -14,7 +14,7 @@
     <string name="title_activity_folder">FolderActivity</string>
     <string name="title_activity_gallery">GalleryActivity</string>
     <string name="forget_password">Passwort vergessen?</string>
-    <string name="confirm_password">Password bestätigen</string>
+    <string name="confirm_password">Passwort bestätigen</string>
     <string name="sign_up">Registrieren</string>
     <string name="back_to_login">Du hast schon ein Konto? <u>Melde dich hier an</u></string>
     <string name="create_folder">Album erstellen</string>
