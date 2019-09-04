@@ -64,7 +64,7 @@ import static com.example.unipics.Constants.KEY_FOLDER;
 import static com.example.unipics.Constants.KEY_IMAGE;
 import static com.example.unipics.Constants.KEY_PATH_IMAGE;
 
-public class GalleryActivity extends AppCompatActivity{
+public class GalleryActivity extends AppCompatActivity implements UploadListener{
 
     private static final int PICK_IMAGE_REQUEST = 101;
     private static final int REQUEST_IMAGE_CAPTURE = 1;
@@ -107,7 +107,7 @@ public class GalleryActivity extends AppCompatActivity{
         String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         //path were the images are saved in firebase
         imagePath = userID + "/" + folderID + "/images";
-        mStorageRef = FirebaseStorage.getInstance().getReference(imagePath);
+        mStorageRef = FirebaseStorage.getInstance().getReference(userID);
         mDatabaseRef = FirebaseDatabase.getInstance().getReference(imagePath);
         mProgressBar = findViewById(R.id.progressBar_gallery);
         mStorage = FirebaseStorage.getInstance();
@@ -120,6 +120,7 @@ public class GalleryActivity extends AppCompatActivity{
         mDatabaseRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                mProgressBar.setVisibility(View.VISIBLE);
                 uploads = new ArrayList<>();
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     Upload upload = postSnapshot.getValue(Upload.class);
@@ -130,11 +131,13 @@ public class GalleryActivity extends AppCompatActivity{
                 gvGallery.setAdapter(galleryAdapter);
                 gvGallery.setEmptyView(findViewById(R.id.emptyElement_gallery));
                 registerForContextMenu(gvGallery);
+                mProgressBar.setVisibility(View.INVISIBLE);
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 Toast.makeText(GalleryActivity.this, databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                mProgressBar.setVisibility(View.INVISIBLE);
 
             }
         });
@@ -208,32 +211,6 @@ public class GalleryActivity extends AppCompatActivity{
 
 
     private void showAddPictureDialog() {
-        /*AlertDialog.Builder pictureDialog = new AlertDialog.Builder(this);
-        pictureDialog.setTitle("Select Action");
-        String[] pictureDialogItems = {
-                "Select photo from gallery",
-                "Capture photo from camera" };
-        pictureDialog.setItems(pictureDialogItems,
-                new DialogInterface.OnClickListener() {
-                    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which) {
-                            case 0:
-                                //ask for permission if not granted
-                                if (ActivityCompat.checkSelfPermission(GalleryActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)!= PackageManager.PERMISSION_GRANTED){
-                                    ActivityCompat.requestPermissions(GalleryActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 100);
-                                    return;
-                                }
-                                choosePictureFromGallery();
-                                break;
-                            case 1:
-                                takePhotoFromCamera();
-                                break;
-                        }
-                    }
-                });
-        pictureDialog.show();*/
 
         final AlertDialog dialogBuilder = new AlertDialog.Builder(this).create();
         LayoutInflater inflater = this.getLayoutInflater();
@@ -359,11 +336,13 @@ public class GalleryActivity extends AppCompatActivity{
                     //if multiple images are picked
                     if (data.getClipData() != null) {
                         ClipData mClipData = data.getClipData();
+                        Uri[] images = new Uri[mClipData.getItemCount()];
                         for (int i = 0; i < mClipData.getItemCount(); i++) {
                             ClipData.Item item = mClipData.getItemAt(i);
                             Uri uri = item.getUri();
-                            uploadToFirebase(uri);
+                            images[i] = uri;
                         }
+                        new BackgroundTask(GalleryActivity.this, mDatabaseRef).execute(images);
                     }
                 }
             }
@@ -381,7 +360,6 @@ public class GalleryActivity extends AppCompatActivity{
     }
 
     private void uploadToFirebase(Uri uri) {
-        mProgressBar.setVisibility(View.VISIBLE);
         final StorageReference imageRef = mStorageRef.child(System.currentTimeMillis() + "." + getFileExtension(uri));
         if (uri != null) {
             imageRef.putFile(uri).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
@@ -401,7 +379,7 @@ public class GalleryActivity extends AppCompatActivity{
                         mDatabaseRef.push().setValue(upload);
                         Toast.makeText(GalleryActivity.this, "Image uploaded successfully",
                                 Toast.LENGTH_LONG).show();
-                        mProgressBar.setVisibility(View.GONE);
+
                     } else {
                         Toast.makeText(GalleryActivity.this, "upload failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     }
@@ -435,4 +413,18 @@ public class GalleryActivity extends AppCompatActivity{
 
     }
 
+    @Override
+    public void onProgress(int indexOfImagesUploaded) {
+        mProgressBar.setVisibility(View.VISIBLE);
+        Toast.makeText(this, ""+indexOfImagesUploaded, Toast.LENGTH_SHORT).show();
+
+
+    }
+
+    @Override
+    public void onResult(String result) {
+        //mProgressBar.setVisibility(View.GONE);
+        Toast.makeText(this, result, Toast.LENGTH_SHORT).show();
+
+    }
 }

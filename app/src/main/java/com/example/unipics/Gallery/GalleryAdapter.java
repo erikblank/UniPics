@@ -42,6 +42,7 @@ public class GalleryAdapter extends ArrayAdapter<Upload> {
             Picasso.get()
                     .load(uri)
                     .fit()
+                    .placeholder(R.drawable.logoperf)
                     .centerCrop()
                     .into(imageView);
 
