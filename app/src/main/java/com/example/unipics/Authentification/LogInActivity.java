@@ -1,9 +1,13 @@
 package com.example.unipics.Authentification;
 
 
+import android.content.Context;
 import android.content.Intent;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Patterns;
@@ -66,12 +70,17 @@ public class LogInActivity extends AppCompatActivity implements View.OnClickList
         Button btnSignIn = findViewById(R.id.btn_signIn);
         TextView mSignUp = findViewById(R.id.textView_goToSignUp);
         mProgressBar = findViewById(R.id.progressBar_login);
-
         btnSignIn.setOnClickListener(this);
         mSignUp.setOnClickListener(this);
-
         // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
 
@@ -80,7 +89,7 @@ public class LogInActivity extends AppCompatActivity implements View.OnClickList
         String password = mPasswordField.getText().toString().trim();
 
         if (email.isEmpty()){
-            mEmailField.setError("Email is required");
+            mEmailField.setError("E-Mail-Adresse eingeben");
             mEmailField.requestFocus();
             return;
         }
@@ -115,9 +124,13 @@ public class LogInActivity extends AppCompatActivity implements View.OnClickList
                             Log.d(TAG, "signInWithEmail:success");
                         } else {
                             // If sign in fails, display a message to the user.
-                            Log.w(TAG, "signInWithEmail:failure", task.getException());
-                            Toast.makeText(LogInActivity.this, "Authentication failed. Maybe wrong email or password.",
-                                    Toast.LENGTH_SHORT).show();
+                            if (!isNetworkAvailable()){
+                                Toast.makeText(LogInActivity.this, "Kein Internet...", Toast.LENGTH_LONG).show();
+                            }else{
+                                Log.w(TAG, "signInWithEmail:failure", task.getException());
+                                Toast.makeText(LogInActivity.this, "Authentication failed. Maybe wrong email or password.",
+                                        Toast.LENGTH_SHORT).show();
+                            }
                         }
                     }
                 });

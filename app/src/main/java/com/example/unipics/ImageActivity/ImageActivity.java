@@ -1,15 +1,20 @@
 package com.example.unipics.ImageActivity;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.media.Image;
 import android.net.Uri;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.example.unipics.R;
@@ -30,8 +35,6 @@ public class ImageActivity extends AppCompatActivity {
     private EditText editText;
     private BottomSheetBehavior mBottomSheetBehavior;
     private Button btnSave;
-    private String folderId;
-
     private DatabaseReference mDatabaseRef;
 
     @Override
@@ -74,11 +77,14 @@ public class ImageActivity extends AppCompatActivity {
                 String noteText = editText.getText().toString().trim();
                 Note note = new Note(noteText);
                 mDatabaseRef.setValue(note);
+                mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                editText.clearFocus();
                 Toast.makeText(ImageActivity.this, "Notiz gespeichert", Toast.LENGTH_SHORT).show();
 
             }
         });
     }
+
 
     //makes the save button visible
     private void enableSaveButton() {
@@ -98,6 +104,7 @@ public class ImageActivity extends AppCompatActivity {
         });
     }
 
+
     //edittext is without this method not scrollable because the bottomsheet goes down and not the text
     @SuppressLint("ClickableViewAccessibility")
     private void makeEditTextScrollable() {
@@ -114,7 +121,7 @@ public class ImageActivity extends AppCompatActivity {
 
     private void init() {
         String uri = getIntent().getStringExtra(KEY_IMAGE);
-        folderId = getIntent().getStringExtra(KEY_PATH_IMAGE);
+        String folderId = getIntent().getStringExtra(KEY_PATH_IMAGE);
         View bottomSheet = findViewById(R.id.bottom_sheet);
         mBottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
         PhotoView photoView = findViewById(R.id.photo_view);

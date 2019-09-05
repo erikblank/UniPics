@@ -1,6 +1,9 @@
 package com.example.unipics.MainMenu;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -64,8 +67,12 @@ public class FolderActivity extends AppCompatActivity {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         myRef = database.getReference(userID);
+        noInternetConnection();
 
     }
+
+
+
     //simple click on Folder will open the GalleryActivity
     private void onFolderClicked() {
         gridFolder.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -270,5 +277,18 @@ public class FolderActivity extends AppCompatActivity {
         dialogBuilder.show();
 
 
+    }
+
+    private void noInternetConnection() {
+        if (!isNetworkAvailable()){
+            Toast.makeText(this, "Kein Internet...", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 }

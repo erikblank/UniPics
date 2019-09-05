@@ -1,8 +1,12 @@
 package com.example.unipics.Authentification;
 
+import android.content.Context;
 import android.content.Intent;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Patterns;
@@ -10,6 +14,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -99,10 +104,13 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
                         } else {
                             // If sign in fails, display a message to the user.
-                            Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                            Toast.makeText(RegisterActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-
+                            if (!isNetworkAvailable()) {
+                                Toast.makeText(RegisterActivity.this, "Kein Internet...", Toast.LENGTH_LONG).show();
+                            }else{
+                                Log.w(TAG, "createUserWithEmail:failure", task.getException());
+                                Toast.makeText(RegisterActivity.this, "Authentication failed.",
+                                        Toast.LENGTH_SHORT).show();
+                            }
                         }
                     }
                 });
@@ -125,4 +133,12 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         startActivity(new Intent(RegisterActivity.this, LogInActivity.class));
         finish();
     }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
 }
