@@ -11,21 +11,18 @@ public class Folder implements Serializable{
     private String folderId;
     private String folderName;
 
-    //empty constructor needed for database
+    //empty constructor needed for firebase database
     public Folder (){
 
     }
 
+    //constructor to set folderName
     public Folder (String folderName){
         this.folderName = folderName;
     }
 
     public String getFolderName() {
         return folderName;
-    }
-
-    public void setFolderName(String folderName) {
-        this.folderName = folderName;
     }
 
     public String getFolderId() {

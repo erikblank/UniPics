@@ -11,6 +11,7 @@ public class Upload{
 
     }
 
+    //constructor to set imageUrl
     public Upload(String imageUrl){
         this.imageUrl = imageUrl;
     }
@@ -29,8 +30,5 @@ public class Upload{
         return imageUrl;
     }
 
-    public void setImageUrl(String mImageUrl) {
-        this.imageUrl = mImageUrl;
-    }
 
 }

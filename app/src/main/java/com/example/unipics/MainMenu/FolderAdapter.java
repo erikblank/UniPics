@@ -30,10 +30,11 @@ public class FolderAdapter extends ArrayAdapter<Folder> {
             LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             v = layoutInflater.inflate(R.layout.folder_item, null);
         }
-
+        //get current folder with parameter position
         Folder folder = folderList.get(position);
 
         if (folder != null){
+            //set name of folder to view
             TextView name = v.findViewById(R.id.textView_folderName);
             name.setText(folder.getFolderName());
 

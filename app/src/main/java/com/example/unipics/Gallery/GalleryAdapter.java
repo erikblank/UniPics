@@ -25,7 +25,7 @@ public class GalleryAdapter extends ArrayAdapter<Upload> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent){
         View v = convertView;
-
+        //inflate view
         if(v == null){
             LayoutInflater layoutInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             v = layoutInflater.inflate(R.layout.gallery_item, null);
@@ -34,11 +34,13 @@ public class GalleryAdapter extends ArrayAdapter<Upload> {
         Upload upload = uploads.get(position);
 
         if (upload != null){
-
             ImageView imageView = v.findViewById(R.id.imageView_galleryItem);
             String uri = upload.getImageUrl();
-
-
+            /*picasso is used to load the image url to the imageView
+             *fit adjusts the picture to the size of the imageView
+             *placeholder loads an picture which is placed while loading the real picture
+             *centerCrop fill the whole imageView
+             */
             Picasso.get()
                     .load(uri)
                     .fit()

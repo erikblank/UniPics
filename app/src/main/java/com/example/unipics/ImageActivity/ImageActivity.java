@@ -37,73 +37,39 @@ public class ImageActivity extends AppCompatActivity {
     private Button btnSave;
     private DatabaseReference mDatabaseRef;
 
+    private PhotoView photoView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image);
         init();
+        loadImageIntoPhotoView();
         makeEditTextScrollable();
         enableSaveButton();
         saveNote();
         initNoteFromDB();
     }
 
-    private void initNoteFromDB() {
-        mDatabaseRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()){
-                    Note note = dataSnapshot.getValue(Note.class);
-                    //note.setNoteId(dataSnapshot.getKey());
-                    String noteText = note.getNoteText();
-                    editText.setText(noteText);
-                    editText.setSelection(editText.getText().length());
-
-                }
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
+    private void init() {
+        //init bottomSheet
+        View bottomSheet = findViewById(R.id.bottom_sheet);
+        //declare behavior of bottomsheet
+        mBottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
+        //init chrisbanes photoView: https://github.com/chrisbanes/PhotoView
+        photoView = findViewById(R.id.photo_view);
+        //init views
+        editText = findViewById(R.id.editText_note);
+        btnSave = findViewById(R.id.btn_saveNote);
+        //init database
+        String folderId = getIntent().getStringExtra(KEY_PATH_IMAGE);
+        mDatabaseRef = FirebaseDatabase.getInstance().getReference(folderId + "/note");
     }
 
-    private void saveNote() {
-        btnSave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String noteText = editText.getText().toString().trim();
-                Note note = new Note(noteText);
-                mDatabaseRef.setValue(note);
-                mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-                editText.clearFocus();
-                Toast.makeText(ImageActivity.this, "Notiz gespeichert", Toast.LENGTH_SHORT).show();
-
-            }
-        });
+    private void loadImageIntoPhotoView() {
+        String uri = getIntent().getStringExtra(KEY_IMAGE);
+        Picasso.get().load(Uri.parse(uri)).into(photoView);
     }
-
-
-    //makes the save button visible
-    private void enableSaveButton() {
-        mBottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
-            @Override
-            public void onStateChanged(@NonNull View view, int i) {
-                if (i == BottomSheetBehavior.STATE_EXPANDED){
-                    btnSave.setVisibility(View.VISIBLE);
-                    }else{
-                        btnSave.setVisibility(View.INVISIBLE);
-                    }
-                }
-            @Override
-            public void onSlide(@NonNull View view, float v) {
-
-            }
-        });
-    }
-
 
     //edittext is without this method not scrollable because the bottomsheet goes down and not the text
     @SuppressLint("ClickableViewAccessibility")
@@ -119,16 +85,61 @@ public class ImageActivity extends AppCompatActivity {
         });
     }
 
-    private void init() {
-        String uri = getIntent().getStringExtra(KEY_IMAGE);
-        String folderId = getIntent().getStringExtra(KEY_PATH_IMAGE);
-        View bottomSheet = findViewById(R.id.bottom_sheet);
-        mBottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
-        PhotoView photoView = findViewById(R.id.photo_view);
-        Picasso.get().load(Uri.parse(uri)).into(photoView);
-        editText = findViewById(R.id.editText_note);
-        btnSave = findViewById(R.id.btn_saveNote);
-        mDatabaseRef = FirebaseDatabase.getInstance().getReference(folderId + "/note");
+    //makes the save button visible, when bottom sheet is full expanded
+    private void enableSaveButton() {
+        mBottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(@NonNull View view, int i) {
+                if (i == BottomSheetBehavior.STATE_EXPANDED){
+                    btnSave.setVisibility(View.VISIBLE);
+                }else{
+                    btnSave.setVisibility(View.INVISIBLE);
+                }
+            }
+            @Override
+            public void onSlide(@NonNull View view, float v) {
+
+            }
+        });
     }
 
+    private void saveNote() {
+        btnSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String noteText = editText.getText().toString().trim();
+                Note note = new Note(noteText);
+                //save note to database
+                mDatabaseRef.setValue(note);
+                //collapse the bottomsheet
+                mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                //focus out of edittext
+                editText.clearFocus();
+                Toast.makeText(ImageActivity.this, "Notiz gespeichert", Toast.LENGTH_SHORT).show();
+
+            }
+        });
+    }
+
+    private void initNoteFromDB() {
+        //if there is already a note, then get the note out of database and display it in the edittext
+        mDatabaseRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    Note note = dataSnapshot.getValue(Note.class);
+                    //note.setNoteId(dataSnapshot.getKey());
+                    assert note != null;
+                    String noteText = note.getNoteText();
+                    editText.setText(noteText);
+                    editText.setSelection(editText.getText().length());
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
 }
