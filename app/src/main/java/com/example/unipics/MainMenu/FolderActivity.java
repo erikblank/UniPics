@@ -263,14 +263,18 @@ public class FolderActivity extends AppCompatActivity {
                 return true;
 
             case R.id.item_logout:
-                //logout from firebase and go to login activity
-                FirebaseAuth.getInstance().signOut();
-                startActivity(new Intent(FolderActivity.this, LogInActivity.class));
-                finish();
+                logOut();
                 return true;
 
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void logOut(){
+        //logout from firebase and go to login activity
+        FirebaseAuth.getInstance().signOut();
+        startActivity(new Intent(FolderActivity.this, LogInActivity.class));
+        finish();
     }
 
     //create dialog to add folder and add them to database
